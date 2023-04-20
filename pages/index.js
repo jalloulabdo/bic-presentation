@@ -15,7 +15,7 @@ export default function Index() {
         <DailyActivity />
       </Grid>
       <Grid item xs={12} lg={8}>
-        <ProductPerfomance />
+        {/* <ProductPerfomance /> */}
       </Grid>
       <Grid item xs={12} lg={12}>
         <BlogCard />

@@ -9,6 +9,9 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Select,
+  MenuItem,
+  InputLabel,
   Modal,
   FormHelperText
 } from "@mui/material";
@@ -16,42 +19,42 @@ import { toast } from 'react-toastify';
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
 
-const ProductPerfomance = ({ users }) => {
+const ProductPerfomance = ({ products ,categorys }) => {
   
-  const [myUsers, setMyUsers] = useState(users)
+  const [myCategory, setMyCategory] = useState(categorys);
+  const [myProducts, setMyProducts] = useState(products)
   const [open, setOpen] = React.useState(false);
   const [openAdd, setOpenAdd] = React.useState(false);
   const [errors, setErrors] = React.useState([]);
+  const [category, setCategory] = React.useState();
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   
   const handleCloseAdd = () => setOpenAdd(false);
 
-  const [saveUser, setSaveUser] = useState({
-    name : '',
-    email: '',
-    phone: '',
-    password: '',
+  const [saveProduct, setSaveProduct] = useState({
+    name: '', 
+    idCategory : ''
   })
 
-  const [editUser, setEditUser] = useState({
+  const [editProduct, setEditProduct] = useState({
     id : '',
-    name : '',
-    email: '',
-    phone: '',
-    password: '',
+    name :'',
+    idCategory : ''
   })
 
   const handelSaveChange = ({ target: { name, value } }) => { 
-    setSaveUser({...saveUser,[name]: value})
+    setSaveProduct({...saveProduct,[name]: value})
   }
   const handelEditChange = ({ target: { name, value } }) => { 
-    setEditUser({...editUser,[name]: value})
+    setEditProduct({...editProduct,[name]: value})
+    
   }
 
-  const fetchUser = async (idUser) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/users/'+idUser+'/edit', {
+  const fetchProduct = async (idProduct) => {
+
+    const reponse= await fetch('http://127.0.0.1:8000/api/products/'+idProduct+'/edit', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -59,77 +62,70 @@ const ProductPerfomance = ({ users }) => {
       
     })
     const result = await reponse.json();
-    editUser.id = result.id
-    editUser.name=result.name
-    editUser.email=result.email
-    editUser.phone=result.phone 
+    editProduct.id = result.id
+    editProduct.name=result.name
+    editProduct.idCategory=result.category_id 
+    setCategory(result.category_id)
     handleOpen()
   }
 
   const handelAddSubmit = async (e) => {
     e.preventDefault(); 
-   const reponse= await fetch('http://127.0.0.1:8000/api/users', {
+   const reponse= await fetch('http://127.0.0.1:8000/api/products', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(saveUser)
+      body: JSON.stringify(saveProduct)
    })
     if (reponse) {
       const result = await reponse.json();
-     
+
       if (result.success==true) {
-        setErrors([])
         handleCloseAdd()
-        users.push(result.data)
-        setMyUsers(users)
-        setSaveUser({
+        products.push(result.data)
+        setMyProducts(products)
+        setSaveProduct({
           name : '',
-          email: '',
-          phone: '',
-          password: '',
+          idCategory : '', 
         })
         toast.success('User Add Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
-      } 
+      }
       if(result.success==false){
         
         setErrors(result.data)
         
-      }
-       
+      }  
     }
   }
 
   const handelEditSubmit = async (e) => {
     e.preventDefault(); 
-   const reponse= await fetch('http://127.0.0.1:8000/api/users/'+editUser.id, {
+   const reponse= await fetch('http://127.0.0.1:8000/api/products/'+editProduct.id, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(editUser)
+      body: JSON.stringify(editProduct)
    })
     if (reponse) {
       const result = await reponse.json();
-      
+      ;
       if (result.success==true) {
-        setErrors([])
         handleClose()
-          const newUsers= myUsers.filter(user => {
-          return user.id != editUser.id
+          const newProducts= myProducts.filter(product => {
+          return product.id != editProduct.id
           })
-        newUsers.push(result.data)
-        setMyUsers(newUsers)
-        setEditUser({
+        newProducts.push(result.data)
+        setMyProducts(newProducts)
+        setEditProduct({
           id : '' ,
-          name : '',
-          email: '',
-          phone: '',
-          password: '',
+          name :'',
+          idCategory : '', 
         })
-        toast.success('User Update Succefully !', {
+        toast.success('User Add Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -139,21 +135,30 @@ const ProductPerfomance = ({ users }) => {
         
       } 
     }
-  }
-
-  const handelDelete = async (idUser) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/users/'+idUser, {
+   }
+    
+  const handelDelete = async (idProduct) => {
+    const reponse= await fetch('http://127.0.0.1:8000/api/deleteProduct/'+idProduct, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       }, 
     })
     const result = await reponse.json(); 
-     const newUsers= myUsers.filter(user => {
-        return user.id != idUser
+     const newProducts= myProducts.filter(product => {
+        return product.id != idProduct
      })
-      setMyUsers(newUsers)
+      setMyUsers(newProducts)
     
+  }
+
+  const selectChange = (event) =>{
+    setSaveProduct({idCategory: event});
+  }
+
+  const selectEditChange = (event) =>{
+    setCategory(event)
+    editProduct.idCategory=event
   }
 
   const style = {
@@ -168,8 +173,8 @@ const ProductPerfomance = ({ users }) => {
   p: 4,
   };
   return (
-   
-    <BaseCard title="User" setOpenAdd ={setOpenAdd}>
+    
+    <BaseCard title="Product" setOpenAdd ={setOpenAdd}>
        
       <Table
         aria-label="simple table"
@@ -187,35 +192,25 @@ const ProductPerfomance = ({ users }) => {
             </TableCell>
             <TableCell>
               <Typography color="textSecondary" variant="h6">
-                Email
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography color="textSecondary" variant="h6">
                 Name
               </Typography>
             </TableCell>
             <TableCell>
               <Typography color="textSecondary" variant="h6">
-                Phone
+              Category
               </Typography>
             </TableCell>
-            <TableCell >
+            <TableCell>
               <Typography color="textSecondary" variant="h6">
-                City
-              </Typography>
-            </TableCell>
-            <TableCell >
-              <Typography color="textSecondary" variant="h6">
-                Action
+              Action
               </Typography>
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {myUsers.map((user) => (
+          {myProducts.map((product) => (
             
-            <TableRow key={user.id}>
+            <TableRow key={product.id}>
               <TableCell>
                 <Typography
                   sx={{
@@ -223,49 +218,33 @@ const ProductPerfomance = ({ users }) => {
                     fontWeight: "500",
                   }}
                 >
-                  {user.id}
+                  {product.id}
                 </Typography>
-              </TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "600",
-                      }}
-                    >
-                      {user.email}
-                    </Typography> 
-                  </Box>
-                </Box>
               </TableCell>
               <TableCell>
                 <Typography color="textSecondary" variant="h6">
-                  {user.name}
+                  {product.name}
                 </Typography>
               </TableCell>
               <TableCell>
-             <Typography color="textSecondary" variant="h6">
-                  {user.phone}
-                </Typography>
-              </TableCell>
-              <TableCell >
-                <Typography color="textSecondary" variant="h6">
-                  {user.city}
-                </Typography>
+             
+                  {myCategory.map((category)=>{
+
+                    if(category.id===product.category_id){
+                     return <Typography key={category.id} color="textSecondary" variant="h6"> 
+                     {category.name}
+                     </Typography>
+                    }
+
+                  })}
+                
               </TableCell>
               <TableCell > 
                 <Stack spacing={2} direction="row">
-                  <Button onClick={() => fetchUser(user.id)} variant="contained" color="warning">
+                  <Button onClick={() => fetchProduct(product.id)} variant="contained" color="warning">
                     Update
                   </Button>
-                  <Button onClick={() => handelDelete(user.id)} variant="contained" color="secondary">
+                  <Button onClick={() => handelDelete(product.id)} variant="contained" color="secondary">
                     delete
                   </Button>
                 </Stack>
@@ -284,36 +263,34 @@ const ProductPerfomance = ({ users }) => {
           <h2 id="modal-title">Update User</h2>
           <form onSubmit={handelEditSubmit}>
             <Stack spacing={3}>
-            <FormHelperText>{errors.name && errors.name[0]}</FormHelperText>
+            <FormHelperText>{errors.name && errors.name[0]}</FormHelperText> 
             <TextField
               id="name-basic"
               label="Name"
               variant="outlined"
               name="name"
-              value={editUser.name}
+              value={editProduct.name}
               onChange={handelEditChange}  
             />
-            <FormHelperText>{errors.email && errors.email[0]}</FormHelperText>
-            <TextField id="email-basic" label="Email" variant="outlined" name="email" value={editUser.email}  onChange={handelEditChange} />
-            <FormHelperText>{errors.password && errors.password[0]}</FormHelperText>           
-            <TextField
-              id="pass-basic"
-              label="Password"
-              type="password"
-              variant="outlined"
-              name='password'
-              value={editUser.password} 
-              onChange={handelEditChange}
-            />
-           
-            <TextField
-              id="er-basic"
-              label="phone"
-              variant="outlined"
-              name="phone"
-              value={editUser.phone}
-              onChange={handelEditChange}  
-            />
+            <InputLabel id="demo-simple-select-autowidth-label">Category</InputLabel>
+              <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                label="Category" 
+                name="idCategory"
+                value={category}
+                onChange={(e) => selectEditChange(e.target.value)}
+              > 
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {
+                  myCategory.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+                  ))
+
+                } 
+              </Select>
           </Stack>
           <br />
           <Button type="submit" variant="contained" mt={2}>
@@ -333,35 +310,34 @@ const ProductPerfomance = ({ users }) => {
           <h2 id="modal-title">Add User</h2>
           <form onSubmit={handelAddSubmit}>
           <Stack spacing={3}>
-              <FormHelperText>{errors.name && errors.name[0]}</FormHelperText>       
+          <FormHelperText>{errors.name && errors.name[0]}</FormHelperText>  
               <TextField
                 id="name"
                 name="name"
                 label="Name"
                 variant="outlined" 
-                value={saveUser.name}
-                onChange={handelSaveChange}
-              />
-              <FormHelperText>{errors.email && errors.email[0]}</FormHelperText>
-              <TextField id="email" name="email" label="Email" variant="outlined" value={saveUser.email} onChange={handelSaveChange} />
-              <FormHelperText>{errors.password && errors.password[0]}</FormHelperText>
-              <TextField
-                id="password"
-                name="password"
-                label="Password"
-                type="password"
-                variant="outlined"
-                value={saveUser.password}
+                value={saveProduct.name}
                 onChange={handelSaveChange}
               /> 
-              <TextField
-                id="phone"
-                name="phone"
-                label="phone" 
-                variant="outlined"
-                value={saveUser.phone}
-                onChange={handelSaveChange}
-              />
+              <InputLabel id="demo-simple-select-autowidth-label">Category</InputLabel>
+              <Select
+                labelId="demo-simple-select-autowidth-label"
+                id="demo-simple-select-autowidth"
+                label="Category" 
+                name="idCategory"
+                value={saveProduct.idCategory}
+                onChange={(e) => selectChange(e.target.value)}
+              > 
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {
+                  myCategory.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+                  ))
+
+                } 
+              </Select>
             </Stack>
           <br /> 
           <Button type="submit" variant="contained" mt={2}>

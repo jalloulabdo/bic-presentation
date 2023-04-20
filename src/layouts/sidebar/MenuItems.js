@@ -7,7 +7,17 @@ const Menuitems = [
   {
     title: "Users",
     icon: "disc",
-    href: "/buttons",
+    href: "/users",
+  },
+  {
+    title: "Category",
+    icon: "grid",
+    href: "/category",
+  },
+  {
+    title: "Products",
+    icon: "grid",
+    href: "/products",
   },
   {
     title: "Forms",
