@@ -6,9 +6,9 @@ import Category from "../src/components/dashboard/Category";
  export async function getStaticProps() {
   // Call an external API endpoint to get posts.
   // You can use any data fetching library
-  const res = await fetch('http://127.0.0.1:8000/api/get_categorys')
+  const res = await fetch('http://127.0.0.1:8000/api/categories')
   const categorys = await res.json()
- 
+  
   // By returning { props: { posts } }, the Blog component
   // will receive `posts` as a prop at build time
   return {

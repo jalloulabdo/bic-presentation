@@ -32,6 +32,7 @@ const ProductPerfomance = ({ users }) => {
     name : '',
     email: '',
     phone: '',
+    serial: '',
     password: '',
   })
 
@@ -87,6 +88,7 @@ const ProductPerfomance = ({ users }) => {
           name : '',
           email: '',
           phone: '',
+          serial: '',
           password: '',
         })
         toast.success('User Add Succefully !', {
@@ -127,6 +129,7 @@ const ProductPerfomance = ({ users }) => {
           name : '',
           email: '',
           phone: '',
+          serial: '',
           password: '',
         })
         toast.success('User Update Succefully !', {
@@ -200,6 +203,11 @@ const ProductPerfomance = ({ users }) => {
                 Phone
               </Typography>
             </TableCell>
+            <TableCell>
+              <Typography color="textSecondary" variant="h6">
+                Serial
+              </Typography>
+            </TableCell>
             <TableCell >
               <Typography color="textSecondary" variant="h6">
                 City
@@ -255,6 +263,13 @@ const ProductPerfomance = ({ users }) => {
                   {user.phone}
                 </Typography>
               </TableCell>
+
+              <TableCell>
+                <Typography color="textSecondary" variant="h6">
+                  {user.serial}
+                </Typography>
+              </TableCell>
+
               <TableCell >
                 <Typography color="textSecondary" variant="h6">
                   {user.city}
@@ -314,6 +329,14 @@ const ProductPerfomance = ({ users }) => {
               value={editUser.phone}
               onChange={handelEditChange}  
             />
+            <TextField
+              id="serial-basic"
+              label="serial"
+              variant="outlined"
+              name="serial"
+              value={editUser.serial}
+              onChange={handelEditChange}  
+            />
           </Stack>
           <br />
           <Button type="submit" variant="contained" mt={2}>
@@ -360,6 +383,14 @@ const ProductPerfomance = ({ users }) => {
                 label="phone" 
                 variant="outlined"
                 value={saveUser.phone}
+                onChange={handelSaveChange}
+              />
+              <TextField
+                id="serial"
+                name="serial"
+                label="serial" 
+                variant="outlined"
+                value={saveUser.serial}
                 onChange={handelSaveChange}
               />
             </Stack>

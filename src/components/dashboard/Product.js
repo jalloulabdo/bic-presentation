@@ -138,7 +138,7 @@ const ProductPerfomance = ({ products ,categorys }) => {
    }
     
   const handelDelete = async (idProduct) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/deleteProduct/'+idProduct, {
+    const reponse= await fetch('http://127.0.0.1:8000/api/products/'+idProduct, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
@@ -148,7 +148,8 @@ const ProductPerfomance = ({ products ,categorys }) => {
      const newProducts= myProducts.filter(product => {
         return product.id != idProduct
      })
-      setMyUsers(newProducts)
+     
+     setMyProducts(newProducts)
     
   }
 

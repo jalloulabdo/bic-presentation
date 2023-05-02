@@ -9,38 +9,49 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Modal
+  Select,
+  MenuItem,
+  InputLabel,
+  Modal,
+  FormHelperText
 } from "@mui/material";
+import { toast } from 'react-toastify';
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
 
-const ProductPerfomance = ({ categorys }) => {
+const CategoryPerfomance = ({ categorys }) => {
   
   const [myCategory, setMyCategory] = useState(categorys)
   const [open, setOpen] = React.useState(false);
   const [openAdd, setOpenAdd] = React.useState(false);
+  const [errors, setErrors] = React.useState([]);
+  const [category, setCategory] = React.useState();
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   
   const handleCloseAdd = () => setOpenAdd(false);
 
-  const [saveCategory, setsaveCategory] = useState({
-    name : '',
+  const [saveCategory, setSaveCategory] = useState({
+    name: '',
   })
 
-  const [editCategory, seteditCategory] = useState({
+  const [editCategory, setEditCategory] = useState({
     id : '',
+    name :'',
   })
 
   const handelSaveChange = ({ target: { name, value } }) => { 
-    setsaveCategory({...saveCategory,[name]: value})
+    setSaveCategory({...saveCategory,[name]: value})
   }
   const handelEditChange = ({ target: { name, value } }) => { 
-    seteditCategory({...editCategory,[name]: value})
+    setEditCategory({...editCategory,[name]: value})
+    
   }
 
   const fetchCategory = async (idCategory) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/getCategory/'+idCategory, {
+
+    const reponse= await fetch('http://127.0.0.1:8000/api/categories/'+idCategory+'/edit', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -49,13 +60,14 @@ const ProductPerfomance = ({ categorys }) => {
     })
     const result = await reponse.json();
     editCategory.id = result.id
-    editCategory.name=result.name
+    editCategory.name=result.name 
+    setCategory(result.category_id)
     handleOpen()
   }
 
   const handelAddSubmit = async (e) => {
     e.preventDefault(); 
-   const reponse= await fetch('http://127.0.0.1:8000/api/addCategory', {
+   const reponse= await fetch('http://127.0.0.1:8000/api/categories', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -67,22 +79,26 @@ const ProductPerfomance = ({ categorys }) => {
 
       if (result.success==true) {
         handleCloseAdd()
-        categorys.push(result.data)
-        setMyCategory(categorys)
-        setsaveCategory({
-          name : '',
-          email: '',
-          phone: '',
-          password: '',
+        myCategory.push(result.data)
+        setMyCategory(myCategory)
+        setSaveCategory({
+          name : '', 
         })
+        toast.success('Category Add Succefully !', {
+          position: toast.POSITION.TOP_CENTER
+        });
       }
-       
+      if(result.success==false){
+        
+        setErrors(result.data)
+        
+      }  
     }
   }
 
   const handelEditSubmit = async (e) => {
     e.preventDefault(); 
-   const reponse= await fetch('http://127.0.0.1:8000/api/editCategory/'+editCategory.id, {
+   const reponse= await fetch('http://127.0.0.1:8000/api/categories/'+editCategory.id, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -92,39 +108,50 @@ const ProductPerfomance = ({ categorys }) => {
     if (reponse) {
       const result = await reponse.json();
       ;
-      if (result) {
+      if (result.success==true) {
         handleClose()
-          const newCategorys= myCategory.filter(category => {
+          const newCategory= myCategory.filter(category => {
           return category.id != editCategory.id
           })
-        newCategorys.push(result)
-        setMyCategory(newCategorys)
-        seteditCategory({
+        newCategory.push(result.data)
+        setMyCategory(newCategory)
+        setEditCategory({
           id : '' ,
-          name : '',
-          email: '',
-          phone: '',
-          password: '',
+          name :'',
         })
+        toast.success('Category Add Succefully !', {
+          position: toast.POSITION.TOP_CENTER
+        });
       }
-       
+      if(result.success==false){
+        
+        setErrors(result.data)
+        
+      } 
     }
    }
     
   const handelDelete = async (idCategory) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/deleteCategory/'+idCategory, {
+    const reponse= await fetch('http://127.0.0.1:8000/api/categories/'+idCategory, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
       }, 
     })
     const result = await reponse.json(); 
-     const newCategorys= myCategory.filter(category => {
+     const newCategory= myCategory.filter(category => {
         return category.id != idCategory
      })
-      setMyCategory(newCategorys)
+     
+     setMyCategory(newCategory)
     
   }
+
+  const selectChange = (event) =>{
+    setSaveCategory({idCategory: event});
+  }
+
+   
 
   const style = {
   position: 'absolute' ,
@@ -138,7 +165,7 @@ const ProductPerfomance = ({ categorys }) => {
   p: 4,
   };
   return (
-   
+    
     <BaseCard title="Category" setOpenAdd ={setOpenAdd}>
        
       <Table
@@ -155,15 +182,14 @@ const ProductPerfomance = ({ categorys }) => {
                 Id
               </Typography>
             </TableCell>
-          
             <TableCell>
               <Typography color="textSecondary" variant="h6">
                 Name
               </Typography>
             </TableCell>
-            <TableCell >
+            <TableCell>
               <Typography color="textSecondary" variant="h6">
-                Action
+              Action
               </Typography>
             </TableCell>
           </TableRow>
@@ -211,6 +237,7 @@ const ProductPerfomance = ({ categorys }) => {
           <h2 id="modal-title">Update Category</h2>
           <form onSubmit={handelEditSubmit}>
             <Stack spacing={3}>
+            <FormHelperText>{errors.name && errors.name[0]}</FormHelperText> 
             <TextField
               id="name-basic"
               label="Name"
@@ -238,7 +265,7 @@ const ProductPerfomance = ({ categorys }) => {
           <h2 id="modal-title">Add Category</h2>
           <form onSubmit={handelAddSubmit}>
           <Stack spacing={3}>
-            
+          <FormHelperText>{errors.name && errors.name[0]}</FormHelperText>  
               <TextField
                 id="name"
                 name="name"
@@ -246,7 +273,7 @@ const ProductPerfomance = ({ categorys }) => {
                 variant="outlined" 
                 value={saveCategory.name}
                 onChange={handelSaveChange}
-              />
+              /> 
             </Stack>
           <br /> 
           <Button type="submit" variant="contained" mt={2}>
@@ -259,4 +286,4 @@ const ProductPerfomance = ({ categorys }) => {
   );
 };
 
-export default ProductPerfomance;
+export default CategoryPerfomance;
