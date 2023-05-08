@@ -15,18 +15,19 @@ export default function MyApp(props) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
   return (
-    <CacheProvider value={emotionCache}>
-      <Head>
-        <title>Flexy NextJs Starter kit page</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </Head>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <FullLayout>
-          <Component {...pageProps} />
-        </FullLayout>
-      </ThemeProvider>
-    </CacheProvider>
+    <Component {...pageProps} />
+    // <CacheProvider value={emotionCache}>
+    //   <Head>
+    //     <title>Flexy NextJs Starter kit page</title>
+    //     <meta name="viewport" content="initial-scale=1, width=device-width" />
+    //   </Head>
+    //   <ThemeProvider theme={theme}>
+    //     <CssBaseline />
+    //     <FullLayout>
+    //       <Component {...pageProps} />
+    //     </FullLayout>
+    //   </ThemeProvider>
+    // </CacheProvider>
   );
 }
 
