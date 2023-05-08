@@ -32,7 +32,7 @@ import { array } from "prop-types";
         return acceptableFileName.includes(name.split(".").pop().toLowerCase());
       } 
     
-    const  readDataFromExcel = (data) => {
+    const  readDataFromExcel = async(data) => {
         const wb = XLSX.read(data)
     
         setSheetNames(wb.SheetNames)
@@ -46,13 +46,14 @@ import { array } from "prop-types";
         const dataHeadrs = null;
         const dataColumn = null;
         const user_id = [];
+        const category_name = [];
+        const obj = [];
         //Loop throught The Sheets
         for (let i = 0; i < wb.SheetNames.length; i++) {
 
           sheetName = wb.SheetNames[i]
           
           const workSheet = wb.Sheets[sheetName] 
-        
           
           dataHeadrs = XLSX.utils.sheet_to_json(workSheet, { header: 1 })[0];
 
@@ -70,25 +71,59 @@ import { array } from "prop-types";
           
         }
         
-        
-        setSheetData(mySheetDate)
-        
+         
 
+        setSheetData(mySheetDate)
+
+        for (let index = 1; index < 4; index++) {
+          
+          if (typeof  dataColumn[index]  != "undefined") {
+            category_name.push(dataColumn[index][0].split("-")[0]);
+          }
+        }
+        
         for (let index = 0; index < dataColumn.length; index) {
-          index = index + 4;
           if (typeof  dataColumn[index]  != "undefined") {
             user_id.push(dataColumn[index][0].split("-")[0]);
           }
+          index = index + 4;
         }
+        
+        var x = 1;
 
-        console.log(mySheetDate);
-        user_id.forEach(async(item, index)=>{
-           
-          const res = await fetch('http://127.0.0.1:8000/api/getVendeur/'+item.trim())
+        for (let index = 0; index < user_id.length; index++) {
+        
+          const res = await fetch('http://127.0.0.1:8000/api/getVendeur/'+user_id[index].trim())
           const vendeur = await res.json()
           const idVendeur = vendeur.data.id
+         
+          for (let value = 0; value < category_name.length; value++) {
+            const res = await fetch('http://127.0.0.1:8000/api/getCategory/'+category_name[value].trim())
+            const category = await res.json()
+            const idCategory = category.data.id
 
-        })
+            var tutorial = {
+              'id_vendeur'  : idVendeur,
+              "id_category" : idCategory,
+              "target" :  mySheetDate['SUIVI'][x][0] ? mySheetDate['SUIVI'][x][0]: '',
+              "reale" :  mySheetDate['SUIVI'][x][1] ? mySheetDate['SUIVI'][x][1]: '',
+              "nb_activation" :  mySheetDate['SUIVI'][x][2] ? mySheetDate['SUIVI'][x][2]: '',
+              "build_up" : mySheetDate['SUIVI'][x][3] ? mySheetDate['SUIVI'][x][3]: 2,
+              "date" : ''
+            };
+            obj.push(tutorial);
+            x = x + 1;
+          }
+          x = x + 1
+        }
+
+        const reponse= await fetch('http://127.0.0.1:8000/api/data_actives', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(obj)
+       })
       }
     
     const handleFile = async(e) => {

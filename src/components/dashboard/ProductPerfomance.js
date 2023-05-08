@@ -11,10 +11,12 @@ import {
   TextField,
   Modal,
   FormHelperText
-} from "@mui/material";
-import { toast } from 'react-toastify';
+} from "@mui/material"; 
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
+import { ToastContainer, toast  } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import swal from 'sweetalert2';
 
 const ProductPerfomance = ({ users }) => {
   
@@ -145,17 +147,34 @@ const ProductPerfomance = ({ users }) => {
   }
 
   const handelDelete = async (idUser) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/users/'+idUser, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }, 
+    swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async  (result) => {
+      if (result.isConfirmed) {
+        const reponse= await fetch('http://127.0.0.1:8000/api/users/'+idUser, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }, 
+        })
+        const result = await reponse.json(); 
+         const newUsers= myUsers.filter(user => {
+            return user.id != idUser
+         })
+        setMyUsers(newUsers)
+        swal.fire(
+          'Deleted!',
+          'User has been deleted.',
+          'success'
+        )
+      }
     })
-    const result = await reponse.json(); 
-     const newUsers= myUsers.filter(user => {
-        return user.id != idUser
-     })
-      setMyUsers(newUsers)
     
   }
 
@@ -173,7 +192,7 @@ const ProductPerfomance = ({ users }) => {
   return (
    
     <BaseCard title="User" setOpenAdd ={setOpenAdd}>
-       
+       <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

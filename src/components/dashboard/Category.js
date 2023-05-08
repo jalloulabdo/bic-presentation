@@ -15,7 +15,9 @@ import {
   Modal,
   FormHelperText
 } from "@mui/material";
-import { toast } from 'react-toastify';
+import { ToastContainer, toast  } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import swal from 'sweetalert2';
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
 
@@ -119,7 +121,7 @@ const CategoryPerfomance = ({ categorys }) => {
           id : '' ,
           name :'',
         })
-        toast.success('Category Add Succefully !', {
+        toast.success('Category Update Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -132,18 +134,35 @@ const CategoryPerfomance = ({ categorys }) => {
    }
     
   const handelDelete = async (idCategory) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/categories/'+idCategory, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }, 
+    swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async  (result) => {
+      if (result.isConfirmed) {
+        const reponse= await fetch('http://127.0.0.1:8000/api/categories/'+idCategory, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }, 
+        })
+        const result = await reponse.json(); 
+        const newCategory= myCategory.filter(category => {
+            return category.id != idCategory
+        })
+        
+        setMyCategory(newCategory)
+        swal.fire(
+          'Deleted!',
+          'Category has been deleted.',
+          'success'
+        )
+      }
     })
-    const result = await reponse.json(); 
-     const newCategory= myCategory.filter(category => {
-        return category.id != idCategory
-     })
-     
-     setMyCategory(newCategory)
     
   }
 
@@ -167,7 +186,7 @@ const CategoryPerfomance = ({ categorys }) => {
   return (
     
     <BaseCard title="Category" setOpenAdd ={setOpenAdd}>
-       
+       <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

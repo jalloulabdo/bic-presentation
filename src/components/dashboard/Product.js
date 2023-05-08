@@ -15,7 +15,9 @@ import {
   Modal,
   FormHelperText
 } from "@mui/material";
-import { toast } from 'react-toastify';
+import { ToastContainer, toast  } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import swal from 'sweetalert2';
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
 
@@ -89,7 +91,7 @@ const ProductPerfomance = ({ products ,categorys }) => {
           name : '',
           idCategory : '', 
         })
-        toast.success('User Add Succefully !', {
+        toast.success('Product Add Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -125,7 +127,7 @@ const ProductPerfomance = ({ products ,categorys }) => {
           name :'',
           idCategory : '', 
         })
-        toast.success('User Add Succefully !', {
+        toast.success('Product Update Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -138,18 +140,36 @@ const ProductPerfomance = ({ products ,categorys }) => {
    }
     
   const handelDelete = async (idProduct) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/products/'+idProduct, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }, 
+    swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async  (result) => {
+      if (result.isConfirmed) {
+        const reponse= await fetch('http://127.0.0.1:8000/api/products/'+idProduct, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }, 
+        })
+        const result = await reponse.json(); 
+         const newProducts= myProducts.filter(product => {
+            return product.id != idProduct
+         })
+         
+         setMyProducts(newProducts)
+        swal.fire(
+          'Deleted!',
+          'Product has been deleted.',
+          'success'
+        )
+      }
     })
-    const result = await reponse.json(); 
-     const newProducts= myProducts.filter(product => {
-        return product.id != idProduct
-     })
-     
-     setMyProducts(newProducts)
+   
     
   }
 
@@ -176,7 +196,7 @@ const ProductPerfomance = ({ products ,categorys }) => {
   return (
     
     <BaseCard title="Product" setOpenAdd ={setOpenAdd}>
-       
+       <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

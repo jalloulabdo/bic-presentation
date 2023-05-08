@@ -15,9 +15,11 @@ import {
   Modal,
   FormHelperText
 } from "@mui/material";
-import { toast } from 'react-toastify';
 import Button from '@mui/material/Button';
 import BaseCard from "../baseCard/BaseCard";
+import { ToastContainer, toast  } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import swal from 'sweetalert2';
 
 const VendeurPerfomance = ({ vendeurs }) => {
   
@@ -89,9 +91,10 @@ const VendeurPerfomance = ({ vendeurs }) => {
       },
       body: JSON.stringify(saveVendeur)
    })
+ 
     if (reponse) {
       const result = await reponse.json();
-
+     
       if (result.success==true) {
         handleCloseAdd()
         myVendeur.push(result.data)
@@ -104,7 +107,7 @@ const VendeurPerfomance = ({ vendeurs }) => {
             serial : ''
           
         })
-        toast.success('User Add Succefully !', {
+        toast.success('Vendeur Add Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -127,7 +130,7 @@ const VendeurPerfomance = ({ vendeurs }) => {
    })
     if (reponse) {
       const result = await reponse.json();
-      ;
+
       if (result.success==true) {
         handleClose()
           const newVendeur= myVendeur.filter(vendeur => {
@@ -143,7 +146,7 @@ const VendeurPerfomance = ({ vendeurs }) => {
           city  : '',
           serial : ''
         })
-        toast.success('User Add Succefully !', {
+        toast.success('Vendeur  Update Succefully !', {
           position: toast.POSITION.TOP_CENTER
         });
       }
@@ -156,18 +159,37 @@ const VendeurPerfomance = ({ vendeurs }) => {
    }
     
   const handelDelete = async (idVendeur) => {
-    const reponse= await fetch('http://127.0.0.1:8000/api/vendeurs/'+idVendeur, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      }, 
-    })
-    const result = await reponse.json(); 
-     const newVendeur= myVendeur.filter(vendeur => {
-        return vendeur.id != idVendeur
-     })
+    swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async  (result) => {
+      if (result.isConfirmed) {
+        const reponse= await fetch('http://127.0.0.1:8000/api/vendeurs/'+idVendeur, {
+          method: 'DELETE',
+          headers: {
+          'Content-Type': 'application/json'
+          }, 
+         })
+        const result = await reponse.json(); 
+        const newVendeur= myVendeur.filter(vendeur => {
+          return vendeur.id != idVendeur
+      })
      
      setMyVendeur(newVendeur)
+    
+        swal.fire(
+          'Deleted!',
+          'Vendeur has been deleted.',
+          'success'
+        )
+      }
+    })
+     
     
   }
  
@@ -188,7 +210,7 @@ const VendeurPerfomance = ({ vendeurs }) => {
   return (
     
     <BaseCard title="Vendeur" setOpenAdd ={setOpenAdd}>
-       
+       <ToastContainer />
       <Table
         aria-label="simple table"
         sx={{

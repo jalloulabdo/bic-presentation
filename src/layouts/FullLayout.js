@@ -9,6 +9,7 @@ import Header from "./header/Header";
 import Sidebar from "./sidebar/Sidebar";
 import Footer from "./footer/Footer";
 
+
 const MainWrapper = experimentalStyled("div")(() => ({
   display: "flex",
   minHeight: "100vh",
